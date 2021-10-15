@@ -18,6 +18,7 @@ class CityData:
             'total_cities': 1 if city else 0,
             'num_errors': 0,
             'num_warnings': 0,
+            'num_notices': 0
         }
         self.slug = None
         if city:
@@ -26,10 +27,12 @@ class CityData:
             self.continent = city['continent']
             self.errors = city['errors']
             self.warnings = city['warnings']
+            self.notices = city['notices']
             if not self.errors:
                 self.data['good_cities'] = 1
             self.data['num_errors'] = len(self.errors)
             self.data['num_warnings'] = len(self.warnings)
+            self.data['num_notices'] = len(self.notices)
             for k, v in city.items():
                 if 'found' in k or 'expected' in k or 'unused' in k:
                     self.data[k] = v
@@ -77,7 +80,7 @@ class CityData:
         s = s.replace(
             '{=entrances}', test_eq(self.data['unused_entrances'], 0)
         )
-        for k in ('errors', 'warnings'):
+        for k in ('errors', 'warnings', 'notices'):
             s = s.replace('{=' + k + '}', test_eq(self.data['num_' + k], 0))
         return s
 
@@ -195,8 +198,9 @@ for continent in sorted(continents.keys()):
                     if os.path.exists(file_base + '.geojson')
                     else None
                 )
-                e = '<br>'.join([osm_links(esc(e)) for e in city.errors])
-                w = '<br>'.join([osm_links(esc(w)) for w in city.warnings])
+                errors = '<br>'.join([osm_links(esc(e)) for e in city.errors])
+                warnings = '<br>'.join([osm_links(esc(w)) for w in city.warnings])
+                notices = '<br>'.join([osm_links(esc(n)) for n in city.notices])
                 country_file.write(
                     tmpl(
                         COUNTRY_CITY,
@@ -207,8 +211,9 @@ for continent in sorted(continents.keys()):
                         yaml=yaml_file,
                         json=json_file,
                         subways=not overground,
-                        errors=e,
-                        warnings=w,
+                        errors=errors,
+                        warnings=warnings,
+                        notices=notices,
                         overground=overground,
                     )
                 )

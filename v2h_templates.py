@@ -12,10 +12,15 @@ th {
 }
 .errors {
   font-size: 10pt;
-  color: darkred;
+  color: red;
   margin-bottom: 1em;
 }
 .warnings {
+  font-size: 10pt;
+  color: saddlebrown;
+  margin-bottom: 1em;
+}
+.notices {
   font-size: 10pt;
   color: darkblue;
   margin-bottom: 1em;
@@ -69,6 +74,7 @@ INDEX_CONTINENT = '''
 <th>Interchanges</th>
 <th>Errors</th>
 <th>Warnings</th>
+<th>Notices</th>
 </tr>
 <tr>
 <td colspan="2" class="bold color{=cities}">{continent}</td>
@@ -79,6 +85,7 @@ INDEX_CONTINENT = '''
 <td class="color{=transfers}">{transfers_found} / {transfers_expected}</td>
 <td class="color{=errors}">{num_errors}</td>
 <td class="color{=warnings}">{num_warnings}</td>
+<td class="color{=notices}">{num_notices}</td>
 </tr>
 {content}
 '''
@@ -94,6 +101,7 @@ INDEX_COUNTRY = '''
 <td class="color{=transfers}">{transfers_found} / {transfers_expected}</td>
 <td class="color{=errors}">{num_errors}</td>
 <td class="color{=warnings}">{num_warnings}</td>
+<td class="color{=notices}">{num_notices}</td>
 </tr>
 '''
 
@@ -160,8 +168,12 @@ COUNTRY_CITY = '''
 <tr><td colspan="{?subways}6{end}{?overground}8{end}">
 <div class="errors">
 {errors}
-</div><div class="warnings">
+</div>
+<div class="warnings">
 {warnings}
+</div>
+<div class="notices">
+{notices}
 </div>
 </td></tr>
 '''
