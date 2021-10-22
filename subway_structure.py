@@ -927,7 +927,7 @@ class Route:
             for ck in CONSTRUCTION_KEYS:
                 if ck in el['tags']:
                     city.warn(
-                        'An under construction {} {} in route. Consider '
+                        'Under construction {} {} in route. Consider '
                         'setting \'inactive\' role or removing construction attributes'.format(
                             m['role'] or 'feature', k
                         ),

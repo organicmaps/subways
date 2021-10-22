@@ -7,23 +7,24 @@ body {
   font-family: sans-serif;
   font-size: 12pt;
 }
+main {
+  margin: 0 auto;
+  max-width: 900px;
+}
 th {
   font-size: 10pt;
 }
 .errors {
   font-size: 10pt;
-  color: red;
-  margin-bottom: 1em;
+  color: #ED0000;
 }
 .warnings {
   font-size: 10pt;
   color: saddlebrown;
-  margin-bottom: 1em;
 }
 .notices {
   font-size: 10pt;
   color: darkblue;
-  margin-bottom: 1em;
 }
 .bold {
   font-weight: bold;
@@ -43,6 +44,58 @@ table {
 }
 tr:hover td:nth-child(n+2) {
     background: lightblue;
+    box-shadow: 0px 0px 5px lightblue;
+}
+td {
+  border-radius: 2px;
+}
+td div+div {
+    margin-top: 0.8em;
+}
+.tooltip {
+    font-weight: bold;
+    position: relative;
+    text-align: left;
+}
+.tooltip div {
+    display: inline-block;
+    width: 19px;
+}
+.tooltip:before {
+    content: attr(data-text);
+    position: absolute;
+    top: 100%;
+    transform: translateX(-50%);
+    margin-top: 14px;
+    width: 200px;
+    padding: 10px;
+    border-radius: 10px;
+    background: lightblue;
+    color: black;
+    text-align: center;
+    opacity: 0;
+    transition: .3s opacity;
+    visibility: hidden;
+    z-index: 10
+}
+.tooltip:after {
+    content: "";
+    position: absolute;
+    margin-top: -5px;
+    top: 100%;
+    transform: translateX(-50%);
+    border: 10px solid #000;
+    border-color: transparent transparent lightblue transparent;
+    visibility: hidden;
+    opacity: 0;
+    transition: .3s opacity
+}
+.tooltip:hover {
+    text-decoration: none
+}
+.tooltip:hover:before,.tooltip:hover:after {
+    opacity: 1;
+    visibility: visible
 }
 </style>
 '''
@@ -56,6 +109,7 @@ INDEX_HEADER = '''
 (s)
 </head>
 <body>
+<main>
 <h1>Subway Validation Results</h1>
 <p>Total good metro networks: {good_cities} of {total_cities}.</p>
 <p><a href="render.html">View on the map</a></p>
@@ -107,6 +161,7 @@ INDEX_COUNTRY = '''
 
 INDEX_FOOTER = '''
 </table>
+</main>
 <p>Produced by <a href="https://github.com/mapsme/subways">Subway Preprocessor</a> on {date}.
 See <a href="{google}">this spreadsheet</a> for the reference metro statistics and
 <a href="https://en.wikipedia.org/wiki/List_of_metro_systems#List">this wiki page</a> for a list
@@ -124,6 +179,7 @@ COUNTRY_HEADER = '''
 (s)
 </head>
 <body>
+<main>
 <h1>Subway Validation Results for {country}</h1>
 <p><a href="index.html">Return to the countries list</a>.</p>
 <table cellspacing="3" cellpadding="2">
@@ -163,23 +219,30 @@ COUNTRY_CITY = '''
 {end}
 <td class="color{=stations}">st: {stations_found} / {stations_expected}</td>
 <td class="color{=transfers}">int: {transfers_found} / {transfers_expected}</td>
-<td class="color{=entrances}">e: {unused_entrances}</td>
+<td class="color{=entrances}">ent: {unused_entrances}</td>
 </tr>
 <tr><td colspan="{?subways}6{end}{?overground}8{end}">
-<div class="errors">
+{?errors}
+<div class="errors"><div data-text="Network is invalid and not suitable for routing." class="tooltip">🛑 Errors</div>
 {errors}
 </div>
-<div class="warnings">
+{end}
+{?warnings}
+<div class="warnings"><div data-text="Problematic data but it's still possible to build routes." class="tooltip">⚠️ Warnings</div>
 {warnings}
 </div>
-<div class="notices">
+{end}
+{?notices}
+<div class="notices"><div data-text="Suspicious condition but not necessarily an error." class="tooltip">ℹ️ Notices</div>
 {notices}
+{end}
 </div>
 </td></tr>
 '''
 
 COUNTRY_FOOTER = '''
 </table>
+</main>
 <p>Produced by <a href="https://github.com/mapsme/subways">Subway Preprocessor</a> on {date}.</p>
 </body>
 </html>
