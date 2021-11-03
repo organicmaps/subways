@@ -6,6 +6,10 @@ STYLE = '''
 body {
   font-family: sans-serif;
   font-size: 12pt;
+  margin: 0px;
+}
+main {
+  margin: 10px;
 }
 main {
   margin: 0 auto;
@@ -43,8 +47,7 @@ table {
     max-width: 900px;
 }
 tr:hover td:nth-child(n+2) {
-    background: lightblue;
-    box-shadow: 0px 0px 5px lightblue;
+    filter: hue-rotate(-50deg);
 }
 td {
   border-radius: 2px;
@@ -95,7 +98,14 @@ td div+div {
 }
 .tooltip:hover:before,.tooltip:hover:after {
     opacity: 1;
-    visibility: visible
+    visibility: visible 
+}
+footer {
+    background: white;
+    border-top: 1px solid grey;
+    bottom: 0px;
+    padding: 10px;
+    position: sticky;
 }
 </style>
 '''
@@ -112,7 +122,7 @@ INDEX_HEADER = '''
 <main>
 <h1>Subway Validation Results</h1>
 <p>Total good metro networks: {good_cities} of {total_cities}.</p>
-<p><a href="render.html">View on the map</a></p>
+<p><a href="render.html">View networks on a map</a></p>
 <table cellspacing="3" cellpadding="2" style="margin-bottom: 1em;">
 '''.replace('(s)', STYLE)
 
@@ -162,10 +172,10 @@ INDEX_COUNTRY = '''
 INDEX_FOOTER = '''
 </table>
 </main>
-<p>Produced by <a href="https://github.com/mapsme/subways">Subway Preprocessor</a> on {date}.
+<footer>Produced by <a href="https://github.com/mapsme/subways">Subway Preprocessor</a> on {date}.
 See <a href="{google}">this spreadsheet</a> for the reference metro statistics and
 <a href="https://en.wikipedia.org/wiki/List_of_metro_systems#List">this wiki page</a> for a list
-of all metro systems.</p>
+of all metro systems.</footer>
 </body>
 </html>
 '''
@@ -243,7 +253,7 @@ COUNTRY_CITY = '''
 COUNTRY_FOOTER = '''
 </table>
 </main>
-<p>Produced by <a href="https://github.com/mapsme/subways">Subway Preprocessor</a> on {date}.</p>
+<footer>Produced by <a href="https://github.com/mapsme/subways">Subway Preprocessor</a> on {date}.</footer>
 </body>
 </html>
 '''
