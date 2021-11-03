@@ -52,8 +52,8 @@ tr:hover td:nth-child(n+2) {
 td {
   border-radius: 2px;
 }
-td div+div {
-    margin-top: 0.8em;
+td > div {
+    margin-bottom: 0.8em;
 }
 .tooltip {
     font-weight: bold;
@@ -68,7 +68,7 @@ td div+div {
     content: attr(data-text);
     position: absolute;
     top: 100%;
-    transform: translateX(-50%);
+    left: 0;
     margin-top: 14px;
     width: 200px;
     padding: 10px;
@@ -86,7 +86,7 @@ td div+div {
     position: absolute;
     margin-top: -5px;
     top: 100%;
-    transform: translateX(-50%);
+    left: 30px;
     border: 10px solid #000;
     border-color: transparent transparent lightblue transparent;
     visibility: hidden;
