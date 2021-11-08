@@ -1748,7 +1748,8 @@ class City:
             ]
         )
         if self.found_tram_lines != self.num_tram_lines:
-            self.error(
+            log_function = self.error if self.found_tram_lines == 0 else self.notice
+            log_function(
                 'Found {} tram lines, expected {}'.format(
                     self.found_tram_lines, self.num_tram_lines
                 ),
