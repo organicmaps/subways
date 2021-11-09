@@ -11,18 +11,24 @@ body {
 main {
   margin: 10px;
 }
+main {
+  margin: 0 auto;
+  max-width: 900px;
+}
 th {
   font-size: 10pt;
 }
 .errors {
   font-size: 10pt;
-  color: darkred;
-  margin-bottom: 1em;
+  color: #ED0000;
 }
 .warnings {
   font-size: 10pt;
+  color: saddlebrown;
+}
+.notices {
+  font-size: 10pt;
   color: darkblue;
-  margin-bottom: 1em;
 }
 .bold {
   font-weight: bold;
@@ -42,6 +48,57 @@ table {
 }
 tr:hover td:nth-child(n+2) {
     filter: hue-rotate(-50deg);
+}
+td {
+  border-radius: 2px;
+}
+td > div {
+    margin-bottom: 0.8em;
+}
+.tooltip {
+    font-weight: bold;
+    position: relative;
+    text-align: left;
+}
+.tooltip div {
+    display: inline-block;
+    width: 19px;
+}
+.tooltip:before {
+    content: attr(data-text);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 14px;
+    width: 200px;
+    padding: 10px;
+    border-radius: 10px;
+    background: lightblue;
+    color: black;
+    text-align: center;
+    opacity: 0;
+    transition: .3s opacity;
+    visibility: hidden;
+    z-index: 10
+}
+.tooltip:after {
+    content: "";
+    position: absolute;
+    margin-top: -5px;
+    top: 100%;
+    left: 30px;
+    border: 10px solid #000;
+    border-color: transparent transparent lightblue transparent;
+    visibility: hidden;
+    opacity: 0;
+    transition: .3s opacity
+}
+.tooltip:hover {
+    text-decoration: none
+}
+.tooltip:hover:before,.tooltip:hover:after {
+    opacity: 1;
+    visibility: visible 
 }
 footer {
     background: white;
@@ -81,6 +138,7 @@ INDEX_CONTINENT = '''
 <th>Interchanges</th>
 <th>Errors</th>
 <th>Warnings</th>
+<th>Notices</th>
 </tr>
 <tr>
 <td colspan="2" class="bold color{=cities}">{continent}</td>
@@ -91,6 +149,7 @@ INDEX_CONTINENT = '''
 <td class="color{=transfers}">{transfers_found} / {transfers_expected}</td>
 <td class="color{=errors}">{num_errors}</td>
 <td class="color{=warnings}">{num_warnings}</td>
+<td class="color{=notices}">{num_notices}</td>
 </tr>
 {content}
 '''
@@ -106,6 +165,7 @@ INDEX_COUNTRY = '''
 <td class="color{=transfers}">{transfers_found} / {transfers_expected}</td>
 <td class="color{=errors}">{num_errors}</td>
 <td class="color{=warnings}">{num_warnings}</td>
+<td class="color{=notices}">{num_notices}</td>
 </tr>
 '''
 
@@ -169,13 +229,23 @@ COUNTRY_CITY = '''
 {end}
 <td class="color{=stations}">st: {stations_found} / {stations_expected}</td>
 <td class="color{=transfers}">int: {transfers_found} / {transfers_expected}</td>
-<td class="color{=entrances}">e: {unused_entrances}</td>
+<td class="color{=entrances}">ent: {unused_entrances}</td>
 </tr>
 <tr><td colspan="{?subways}6{end}{?overground}8{end}">
-<div class="errors">
+{?errors}
+<div class="errors"><div data-text="Network is invalid and not suitable for routing." class="tooltip">🛑 Errors</div>
 {errors}
-</div><div class="warnings">
+</div>
+{end}
+{?warnings}
+<div class="warnings"><div data-text="Problematic data but it's still possible to build routes." class="tooltip">⚠️ Warnings</div>
 {warnings}
+</div>
+{end}
+{?notices}
+<div class="notices"><div data-text="Suspicious condition but not necessarily an error." class="tooltip">ℹ️ Notices</div>
+{notices}
+{end}
 </div>
 </td></tr>
 '''
