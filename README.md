@@ -102,7 +102,7 @@ Summary information about all metro networks that are monitored is gathered in t
 [Google Spreadsheet](https://docs.google.com/spreadsheets/d/1SEW1-NiNOnA2qDwievcxYV1FOaQl1mb1fdeyqAxHu3k).
 
 Regular updates of validation results are available at
-[this website](https://maps.vk.com/osm/tools/subways/latest/).
+[this website](https://cdn.organicmaps.app/subway/).
 You can find more info about this validator instance in
 [OSM Wiki](https://wiki.openstreetmap.org/wiki/Quality_assurance#subway-preprocessor).
 
