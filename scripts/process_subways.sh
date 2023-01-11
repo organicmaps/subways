@@ -237,6 +237,10 @@ if [ -n "${DUMP-}" ]; then
   mkdir -p "$DUMP"
 fi
 
+if [ -n "${DUMP-}" ]; then
+   mkdir -p "$DUMP"
+fi
+
 VALIDATION="$TMPDIR/validation.json"
 "$PYTHON" "$SUBWAYS_PATH/process_subways.py" ${QUIET:+-q} \
     -x "$FILTERED_DATA" -l "$VALIDATION" \
