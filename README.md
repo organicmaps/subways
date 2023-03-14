@@ -5,6 +5,8 @@ systems in the world from OpenStreetMap. `subway_structure.py` produces
 a list of disjunct systems that can be used for routing and for displaying
 of metro maps.
 
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 
 ## How To Validate
 
@@ -51,7 +53,7 @@ a city's bbox has been extended.
 A single city or a country with few metro networks can be validated much faster
 if you allow the `process_subway.py` to fetch data from Overpass API. Here are the steps:
 
-1. Python3 interpreter required (3.5+)
+1. Python3 interpreter required (3.8+)
 2. Clone the repo
     ```
     git clone https://github.com/alexey-zakharenkov/subways.git subways_validator

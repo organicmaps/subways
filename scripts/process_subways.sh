@@ -32,14 +32,16 @@ Environment variable reference:
   - PLANET_METRO: path to a local o5m file with extract of cities having metro
     It's used instead of \$PLANET if exists otherwise it's created first
   - PLANET_UPDATE_SERVER: server to get replication data from. Defaults to https://planet.openstreetmap.org/replication/
+  - CITIES_INFO_URL: http(s) or "file://" URL to a CSV file with reference information about rapid transit systems. A default value is hammered into python code.
   - CITY: name of a city/country to process
   - BBOX: bounding box of an extract; x1,y1,x2,y2. Has precedence over \$POLY
   - POLY: *.poly file with [multi]polygon comprising cities with metro
     If neither \$BBOX nor \$POLY is set, then \$POLY is generated
-  - SKIP_PLANET_UPDATE: skip \$PLANET file update. Any non-empty string is True
+  - SKIP_PLANET_UPDATE: skip \$PLANET_METRO file update. Any non-empty string is True
   - SKIP_FILTERING: skip filtering railway data. Any non-empty string is True
   - FILTERED_DATA: path to filtered data. Defaults to \$TMPDIR/subways.osm
   - MAPSME: file name for maps.me json output
+  - GTFS: file name for GTFS output
   - DUMP: directory/file name to dump YAML city data. Do not set to omit dump
   - GEOJSON: directory/file name to dump GeoJSON data. Do not set to omit dump
   - ELEMENTS_CACHE: file name to elements cache. Allows OSM xml processing phase
@@ -54,6 +56,7 @@ Environment variable reference:
   - SERVER: server name and path to upload HTML files (e.g. ilya@osmz.ru:/var/www/)
   - SERVER_KEY: rsa key to supply for uploading the files
   - REMOVE_HTML: set to 1 to remove \$HTML_DIR after uploading
+  - QUIET: set to any non-empty value to use WARNING log level in process_subways.py. Default is INFO.
 EOF
   exit
 fi
@@ -88,9 +91,10 @@ function check_poly() {
       if [ -z "${POLY-}" -o ! -f "${POLY-}" ]; then
         POLY=${POLY:-$(mktemp "$TMPDIR/all-metro.XXXXXXXX.poly")}
         if [ -n "$("$PYTHON" -c "import shapely" 2>&1)" ]; then
-          "$PYTHON" -m pip install shapely
+          "$PYTHON" -m pip install shapely==1.7.1
         fi
-        "$PYTHON" "$SUBWAYS_PATH"/make_all_metro_poly.py > "$POLY"
+        "$PYTHON" "$SUBWAYS_PATH"/make_all_metro_poly.py \
+            ${CITIES_INFO_URL:+--cities-info-url "$CITIES_INFO_URL"} > "$POLY"
       fi
     fi
     POLY_CHECKED=1
@@ -235,10 +239,16 @@ if [ -n "${DUMP-}" ]; then
   mkdir -p "$DUMP"
 fi
 
+if [ -n "${DUMP-}" ]; then
+   mkdir -p "$DUMP"
+fi
+
 VALIDATION="$TMPDIR/validation.json"
-"$PYTHON" "$SUBWAYS_PATH/process_subways.py" -q \
+"$PYTHON" "$SUBWAYS_PATH/process_subways.py" ${QUIET:+-q} \
     -x "$FILTERED_DATA" -l "$VALIDATION" \
-    ${MAPSME:+-o "$MAPSME"} \
+    ${CITIES_INFO_URL:+--cities-info-url "$CITIES_INFO_URL"} \
+    ${MAPSME:+--output-mapsme "$MAPSME"} \
+    ${GTFS:+--output-gtfs "$GTFS"} \
     ${CITY:+-c "$CITY"} ${DUMP:+-d "$DUMP"} ${GEOJSON:+-j "$GEOJSON"} \
     ${ELEMENTS_CACHE:+-i "$ELEMENTS_CACHE"} \
     ${CITY_CACHE:+--cache "$CITY_CACHE"} \
@@ -257,7 +267,9 @@ fi
 
 mkdir -p $HTML_DIR
 rm -f "$HTML_DIR"/*.html
-"$PYTHON" "$SUBWAYS_PATH/validation_to_html.py" "$VALIDATION" "$HTML_DIR"
+"$PYTHON" "$SUBWAYS_PATH/validation_to_html.py" \
+    ${CITIES_INFO_URL:+--cities-info-url "$CITIES_INFO_URL"} \
+    "$VALIDATION" "$HTML_DIR"
 
 # Uploading files to the server
 
