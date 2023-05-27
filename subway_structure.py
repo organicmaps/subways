@@ -1,6 +1,7 @@
 import math
 import re
 from collections import Counter, defaultdict
+from itertools import islice
 
 from css_colours import normalize_colour
 
@@ -1161,18 +1162,21 @@ class Route:
         tracks = self.get_truncated_tracks(tracks)
         return tracks
 
-    def check_stops_order_by_angle(self):
+    def check_stops_order_by_angle(self) -> tuple[list, list]:
         disorder_warnings = []
         disorder_errors = []
-        for si in range(len(self.stops) - 2):
+        for i, route_stop in enumerate(
+            islice(self.stops, 1, len(self.stops) - 1), start=1
+        ):
             angle = angle_between(
-                self.stops[si].stop,
-                self.stops[si + 1].stop,
-                self.stops[si + 2].stop,
+                self.stops[i - 1].stop,
+                route_stop.stop,
+                self.stops[i + 1].stop,
             )
             if angle < ALLOWED_ANGLE_BETWEEN_STOPS:
                 msg = (
-                    f'Angle between stops around "{self.stops[si + 1]}" '
+                    "Angle between stops around "
+                    f'"{route_stop.stoparea.name}" {route_stop.stop} '
                     f"is too narrow, {angle} degrees"
                 )
                 if angle < DISALLOWED_ANGLE_BETWEEN_STOPS:
@@ -1181,7 +1185,7 @@ class Route:
                     disorder_warnings.append(msg)
         return disorder_warnings, disorder_errors
 
-    def check_stops_order_on_tracks_direct(self, stop_sequence):
+    def check_stops_order_on_tracks_direct(self, stop_sequence) -> str | None:
         """Checks stops order on tracks, following stop_sequence
         in direct order only.
         :param stop_sequence: list of dict{'route_stop', 'positions_on_rails',
@@ -1206,12 +1210,13 @@ class Route:
                     allowed_order_violations -= 1
                 else:
                     route_stop = stop_data["route_stop"]
-                    return 'Stops on tracks are unordered near "{}" {}'.format(
-                        route_stop.stoparea.name, route_stop.stop
+                    return (
+                        "Stops on tracks are unordered near "
+                        f'"{route_stop.stoparea.name}" {route_stop.stop}'
                     )
             max_position_on_rails = positions_on_rails[suitable_occurrence]
 
-    def check_stops_order_on_tracks(self, projected_stops_data):
+    def check_stops_order_on_tracks(self, projected_stops_data) -> str | None:
         """Checks stops order on tracks, trying direct and reversed
             order of stops in the stop_sequence.
         :param projected_stops_data: info about RouteStops that belong to the
@@ -1517,25 +1522,23 @@ class City:
         self.errors = []
         self.warnings = []
         self.notices = []
-        self.id = int(city_data["id"])
+        self.try_fill_int_attribute(city_data, "id")
         self.name = city_data["name"]
         self.country = city_data["country"]
         self.continent = city_data["continent"]
         self.overground = overground
         if not overground:
-            self.num_stations = int(city_data["num_stations"])
-            self.num_lines = int(city_data["num_lines"] or "0")
-            self.num_light_lines = int(city_data["num_light_lines"] or "0")
-            self.num_interchanges = int(city_data["num_interchanges"] or "0")
+            self.try_fill_int_attribute(city_data, "num_stations")
+            self.try_fill_int_attribute(city_data, "num_lines", "0")
+            self.try_fill_int_attribute(city_data, "num_light_lines", "0")
+            self.try_fill_int_attribute(city_data, "num_interchanges", "0")
         else:
-            self.num_tram_lines = int(city_data["num_tram_lines"] or "0")
-            self.num_trolleybus_lines = int(
-                city_data["num_trolleybus_lines"] or "0"
-            )
-            self.num_bus_lines = int(city_data["num_bus_lines"] or "0")
-            self.num_other_lines = int(city_data["num_other_lines"] or "0")
+            self.try_fill_int_attribute(city_data, "num_tram_lines", "0")
+            self.try_fill_int_attribute(city_data, "num_trolleybus_lines", "0")
+            self.try_fill_int_attribute(city_data, "num_bus_lines", "0")
+            self.try_fill_int_attribute(city_data, "num_other_lines", "0")
 
-        # Aquiring list of networks and modes
+        # Acquiring list of networks and modes
         networks = (
             None
             if not city_data["networks"]
@@ -1573,6 +1576,33 @@ class City:
         self.station_ids = set()  # Set of stations' uid
         self.stops_and_platforms = set()  # Set of stops and platforms el_id
         self.recovery_data = None
+
+    def try_fill_int_attribute(
+        self, city_data: dict, attr: str, default: str | None = None
+    ) -> None:
+        """Try to convert string value to int. Conversion is considered
+        to fail if one of the following is true:
+        * attr is not empty and data type casting fails;
+        * attr is empty and no default value is given.
+        In such cases the city is marked as bad by adding an error
+        to the city validation log.
+        """
+        attr_value = city_data[attr]
+        if not attr_value and default is not None:
+            attr_value = default
+
+        try:
+            attr_int = int(attr_value)
+        except ValueError:
+            print_value = (
+                f"{city_data[attr]}" if city_data[attr] else "<empty>"
+            )
+            self.error(
+                f"Configuration error: wrong value for {attr}: {print_value}"
+            )
+            setattr(self, attr, 0)
+        else:
+            setattr(self, attr, attr_int)
 
     @staticmethod
     def log_message(message, el):
@@ -1814,12 +1844,12 @@ class City:
         if not self.overground:
             result.update(
                 {
-                    "subwayl_expected": self.num_lines,
-                    "lightrl_expected": self.num_light_lines,
+                    "subwayl_expected": getattr(self, "num_lines", 0),
+                    "lightrl_expected": getattr(self, "num_light_lines", 0),
                     "subwayl_found": getattr(self, "found_lines", 0),
                     "lightrl_found": getattr(self, "found_light_lines", 0),
-                    "stations_expected": self.num_stations,
-                    "transfers_expected": self.num_interchanges,
+                    "stations_expected": getattr(self, "num_stations", 0),
+                    "transfers_expected": getattr(self, "num_interchanges", 0),
                 }
             )
         else:
@@ -1827,10 +1857,12 @@ class City:
                 {
                     "stations_expected": 0,
                     "transfers_expected": 0,
-                    "busl_expected": self.num_bus_lines,
-                    "trolleybusl_expected": self.num_trolleybus_lines,
-                    "traml_expected": self.num_tram_lines,
-                    "otherl_expected": self.num_other_lines,
+                    "busl_expected": getattr(self, "num_bus_lines", 0),
+                    "trolleybusl_expected": getattr(
+                        self, "num_trolleybus_lines", 0
+                    ),
+                    "traml_expected": getattr(self, "num_tram_lines", 0),
+                    "otherl_expected": getattr(self, "num_other_lines", 0),
                     "busl_found": getattr(self, "found_bus_lines", 0),
                     "trolleybusl_found": getattr(
                         self, "found_trolleybus_lines", 0
@@ -2006,7 +2038,8 @@ class City:
                 )
                 log_function = (
                     self.error
-                    if not (
+                    if self.num_stations > 0
+                    and not (
                         0
                         <= (self.num_stations - self.found_stations)
                         / self.num_stations
