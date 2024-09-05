@@ -1,5 +1,5 @@
-#!/bin/bash
-set -e -u
+#!/usr/bin/env bash
+#set -euxo pipefail
 
 if [ $# -gt 0 -a \( "${1-}" = "-h" -o "${1-}" = '--help' \) ]; then
   cat << EOF
@@ -153,7 +153,7 @@ fi
 if [ -n "${NEED_FILTER-}" ]; then
 
   # If $PLANET_METRO file doesn't exist, create it
-  
+
   if [ -n "${PLANET_METRO-}" ]; then
     EXT=${PLANET_METRO##*.}
     if [ ! "$EXT" = "osm" -a ! "$EXT" == "xml" -a ! "$EXT" = "o5m" ]; then
@@ -254,6 +254,9 @@ if [ -n "${NEED_TO_REMOVE_POLY-}" ]; then
 fi
 
 # Running the validation
+if [ -n "${DUMP-}" ]; then
+  mkdir -p "$DUMP"
+fi
 
 if [ -n "${DUMP-}" ]; then
    mkdir -p "$DUMP"

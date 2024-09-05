@@ -101,7 +101,7 @@ Expose a directory with static contents via a web-server and put into it:
 Summary information about all metro networks that are monitored is gathered in the
 [Google Spreadsheet](https://docs.google.com/spreadsheets/d/1SEW1-NiNOnA2qDwievcxYV1FOaQl1mb1fdeyqAxHu3k).
 
-Regular updates of validation results are available at
+Regular updates of validation results are available at [Organic Maps](https://cdn.organicmaps.app/subway/) and
 [this website](https://maps.vk.com/osm/tools/subways/latest/).
 You can find more info about this validator instance in
 [OSM Wiki](https://wiki.openstreetmap.org/wiki/Quality_assurance#subway-preprocessor).
