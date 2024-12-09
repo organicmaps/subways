@@ -256,6 +256,7 @@ python "$SUBWAYS_REPO_PATH/scripts/process_subways.py" ${QUIET:+-q} \
     -x "$FILTERED_DATA" -l "$VALIDATION" \
     ${CITIES_INFO_URL:+--cities-info-url "$CITIES_INFO_URL"} \
     ${MAPSME:+--output-mapsme "$MAPSME"} \
+    ${FMK:+--output-fmk "$FMK"} \
     ${GTFS:+--output-gtfs "$GTFS"} \
     ${CITY:+-c "$CITY"} \
     ${DUMP:+-d "$DUMP"} \
