@@ -62,19 +62,20 @@ EOF
   exit
 fi
 
+PYTHON="${PYTHON:-python3}"
 
 function activate_venv_at_path() {
   path=$1
 
   if [ ! -d "$path/".venv ]; then
-    "${PYTHON:-python3.11}" -m venv "$path"/.venv
+    "$PYTHON" -m venv "$path"/.venv
   fi
 
   source "$path"/.venv/bin/activate
 
   if [ -f "$path"/requirements.txt ]; then
-    pip install --upgrade pip
-    pip install -r "$path"/requirements.txt
+    pip3 install --upgrade pip
+    pip3 install -r "$path"/requirements.txt
   fi
 }
 
@@ -108,7 +109,7 @@ function check_poly() {
       if [ -z "${POLY-}" -o ! -f "${POLY-}" ]; then
         POLY=${POLY:-$(mktemp "$TMPDIR/all-metro.XXXXXXXX.poly")}
         activate_venv_at_path "$SUBWAYS_REPO_PATH/tools/make_poly"
-        python "$SUBWAYS_REPO_PATH"/tools/make_poly/make_all_metro_poly.py \
+        "$PYTHON" "$SUBWAYS_REPO_PATH"/tools/make_poly/make_all_metro_poly.py \
             ${CITIES_INFO_URL:+--cities-info-url "$CITIES_INFO_URL"} > "$POLY"
         deactivate
       fi
@@ -265,7 +266,7 @@ fi
 VALIDATION="$TMPDIR/validation.json"
 
 activate_venv_at_path "$SUBWAYS_REPO_PATH/scripts"
-python "$SUBWAYS_REPO_PATH/scripts/process_subways.py" ${QUIET:+-q} \
+"$PYTHON" "$SUBWAYS_REPO_PATH/scripts/process_subways.py" ${QUIET:+-q} \
     -x "$FILTERED_DATA" -l "$VALIDATION" \
     ${CITIES_INFO_URL:+--cities-info-url "$CITIES_INFO_URL"} \
     ${MAPSME:+--output-mapsme "$MAPSME"} \
@@ -295,7 +296,7 @@ mkdir -p $HTML_DIR
 rm -f "$HTML_DIR"/*.html
 
 activate_venv_at_path "$SUBWAYS_REPO_PATH/tools/v2h"
-python "$SUBWAYS_REPO_PATH/tools/v2h/validation_to_html.py" \
+"$PYTHON" "$SUBWAYS_REPO_PATH/tools/v2h/validation_to_html.py" \
     ${CITIES_INFO_URL:+--cities-info-url "$CITIES_INFO_URL"} \
     "$VALIDATION" "$HTML_DIR"
 deactivate

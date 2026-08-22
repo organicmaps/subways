@@ -1,7 +1,7 @@
 validator_osm_wiki_url = (
     "https://wiki.openstreetmap.org/wiki/Quality_assurance#subway-preprocessor"
 )
-github_url = "https://github.com/alexey-zakharenkov/subways"
+github_url = "https://github.com/organicmaps/subways"
 produced_by = f"""Produced by
 <a href="{github_url}">Subway Preprocessor</a> on {{date}}"""
 metro_mapping_osm_article = "https://wiki.openstreetmap.org/wiki/Metro_Mapping"
